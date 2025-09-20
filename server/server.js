@@ -16,13 +16,13 @@ var con = mysql.createConnection({
     user: "root",
     password: "123456",
     insecureAuth: true,
-    database: "HeThongNongDoCon"
+    database: "shop"
 });
 //step 1
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected!!!")
-    var sql = "SELECT * FROM Records";
+    var sql = "SELECT * FROM products";
     con.query(sql, function (err, results) {
         if (err) throw err;
         console.log(results);
@@ -31,7 +31,7 @@ con.connect(function (err) {
 
 //RESTFull API
 app.get('/getAll', function (req, res) {
-    var sql = "SELECT * FROM Records";
+    var sql = "SELECT * FROM products";
     con.query(sql, function (err, results) {
         if (err) throw err;
         res.send(results);
