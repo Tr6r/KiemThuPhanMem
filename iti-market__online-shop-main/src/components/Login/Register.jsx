@@ -21,7 +21,7 @@ const Register = () => {
 
 
 	// Handle user registration
-	const handleRegister = (e) => {
+	const handleRegister = async (e) => {
 		e.preventDefault();
 
 		// Username Validation: Alphanumeric and between 4 to 16 characters
@@ -61,34 +61,45 @@ const Register = () => {
 			return;
 		}
 
-		// Check if the username already exists in local storage
-		const users = JSON.parse(localStorage.getItem("users")) || [];
-		const userExists = users.some((user) => user.username === username);
+		try {
+		const res = await fetch("http://localhost:5000/register", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				username,
+				password,
+				Phone,
+				email,
+			}),
+		});
 
-		if (userExists) {
-			setMessage("Username already exists.");
-		} else {
+		// ⚡ in ra status để biết backend trả về gì
+		console.log("Response status:", res.status);
 
-			// Save new user to local storage
-			users.push({ username, email, password });
-			localStorage.setItem("users", JSON.stringify(users));
-			setMessage("Registration successful!");
+		const data = await res.json().catch(() => null); 
+		console.log("Response data:", data);
 
-			// Reset input fields after successful registration
-			setUsername("");
-			setEmail("");
-			setPassword("");
-			setConfirmPassword("");
-			setPhone("");
-
-	
-
-			//chuyen huong sang login sau 1 giây (cho user thấy message)
- 			setTimeout(() => {
-				navigate("/login");
-			}, 1000);
+		if (!res.ok) {
+			setMessage(data?.message || "Đăng ký thất bại");
+			return;
 		}
 
+		setMessage("Đăng ký thành công!");
+		setUsername("");
+		setEmail("");
+		setPassword("");
+		setConfirmPassword("");
+		setPhone("");
+
+		setTimeout(() => navigate("/login"), 1000);
+
+	} catch (error) {
+		// ⚡ log chi tiết error
+		console.error("Fetch error:", error);
+		setMessage("Có lỗi xảy ra, vui lòng thử lại.");
+	}
 		
 	};
 
