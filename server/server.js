@@ -14,7 +14,7 @@ var con = mysql.createConnection({
     host: "localhost",
     port: "3306",
     user: "root",
-    password: "123456",
+    password: "12345",
     insecureAuth: true,
     database: "shop"
 });
@@ -118,6 +118,39 @@ app.post('/orders', function (req, res) {
     });
 });
 
+// Lấy giỏ hàng của user
+app.get('/cart/:user_id', function (req, res) {
+    const userId = req.params.user_id;
+    const sql = `
+        SELECT sc.cart_id, sc.user_id, sc.product_id, sc.quantity, sc.added_at,
+               p.product_name, p.price
+        FROM shopping_cart sc
+        JOIN products p ON sc.product_id = p.product_id
+        WHERE sc.user_id = ?`;
+    con.query(sql, [userId], function (err, results) {
+        if (err) throw err;
+        res.send(results);
+    });
+});
+
+// Thêm sản phẩm vào giỏ hàng
+app.post('/cart', function (req, res) {
+    const { user_id, product_id, quantity } = req.body;
+
+    if (!user_id || !product_id || !quantity) {
+        return res.status(400).send({ message: "Thiếu thông tin giỏ hàng" });
+    }
+
+    const sql = `
+        INSERT INTO shopping_cart (user_id, product_id, quantity)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)`;
+
+    con.query(sql, [user_id, product_id, quantity], function (err, result) {
+        if (err) throw err;
+        res.send({ message: "Thêm vào giỏ hàng thành công", cart_id: result.insertId });
+    });
+});
 
 
 var server = app.listen(5555, function () {
