@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "./style.css";
+
+// import signal
+import { authSignal } from "../../signals";
 
 const Login = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [message, setMessage] = useState("");
 	const [CurrentPassVisibility, SetPassVisibility] = useState(false);
+	const navigate = useNavigate(); //hook dieu huong
 
 	const handleLogin = (e) => {
 		e.preventDefault();
@@ -19,8 +24,17 @@ const Login = () => {
 
 		if (user) {
 			setMessage("Login successful!");
+
+			// Cập nhật signal => user đã đăng nhập
+			authSignal.value = true;
+
+			//reset form
 			setUsername("");
 			setPassword("");
+
+			//navigate to homepage
+			navigate("/");
+
 		} else {
 			setMessage("Invalid credentials.");
 		}

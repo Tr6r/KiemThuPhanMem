@@ -10,10 +10,12 @@ import Login from "./components/Login/Login";
 import Register from "./components/Login/Register";
 import Sdata from "./components/shops/Sdata";
 
+
 function App() {
 	const { productItems } = Data; // Extract productItems from Data
 	const { shopItems } = Sdata;
 	const [cartItem, setCartItem] = useState([]); // State to manage cart items
+	
 
 	// Adds a product to the cart or updates the quantity if it already exists
 	const addToCart = (product) => {
