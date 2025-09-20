@@ -14,29 +14,50 @@ const Login = () => {
 	const [CurrentPassVisibility, SetPassVisibility] = useState(false);
 	const navigate = useNavigate(); //hook dieu huong
 
-	const handleLogin = (e) => {
+	const handleLogin = async (e) => {
 		e.preventDefault();
 
-		const users = JSON.parse(localStorage.getItem("users")) || [];
-		const user = users.find(
-			(user) => user.username === username && user.password === password
-		);
+		try {
+			// ⚡ gọi API login
+			const res = await fetch("http://172.16.17.130:5555/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ username, password }),
+			});
 
-		if (user) {
-			setMessage("Login successful!");
+			console.log("Response status:", res.status);
+			const data = await res.json();
+			console.log("Response data:", data);
 
-			// Cập nhật signal => user đã đăng nhập
-			authSignal.value = true;
+			if (!res.ok) {
+				setMessage(data.message || "Đăng nhập thất bại");
 
-			//reset form
-			setUsername("");
-			setPassword("");
+				// ✅ Cập nhật signal khi login thành công
+				
+				return;
+			}
 
-			//navigate to homepage
-			navigate("/");
+			authSignal.value = {
+				isLoggedIn: true,
+				user: data.user, // lấy user từ backend trả về
+			};
+				setMessage("Login successful!");
 
-		} else {
-			setMessage("Invalid credentials.");
+				// ⚡ Cập nhật signal => user đã đăng nhập
+				authSignal.value = data.user; // lưu thông tin user thay vì true
+
+				// reset form
+				setUsername("");
+				setPassword("");
+
+				// ⚡ điều hướng sang trang chủ
+				setTimeout(() => navigate("/"), 1000);
+
+		} catch (error) {
+			console.error("Fetch error:", error);
+			setMessage("Có lỗi xảy ra khi gọi API.");
 		}
 	};
 

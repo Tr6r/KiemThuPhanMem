@@ -4,7 +4,7 @@ import { FaLock } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa6";
 import { FaMobile } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { authSignal } from "../../signals";  // import signal
+import { authSignal } from "../../App";
 
 
 const Register = () => {

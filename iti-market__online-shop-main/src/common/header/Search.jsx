@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import logo from "../../components/assets/images/logo1.svg";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";   // ✅ thêm dòng này
+import { authSignal } from "../../signals";
 
 const Search = ({ cartItem }) => {
+	const navigate = useNavigate();
+
 	const [showLogin, setShowLogin] = useState(false)
 	const loginRef = useRef(null); // Reference to the login dropdown
 
@@ -32,7 +36,11 @@ const Search = ({ cartItem }) => {
 			<div className="container c_flex">
 				{/* Logo Section */}
 				<div className="logo width">
-					<img src={logo} alt="" />
+					<img src={logo} 
+					alt=""
+					style={{ cursor: "pointer" }}
+					onClick={() => navigate("/")}/>
+					
 				</div>
 
 				{/* Search Input Section */}
@@ -58,6 +66,7 @@ const Search = ({ cartItem }) => {
 							<Link to='/register'>Register</Link>
 						</li>
 					</ul>
+
 					</div>
 					<div className="cart">
 						<Link to="/cart">
