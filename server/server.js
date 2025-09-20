@@ -90,39 +90,6 @@ app.post('/login', function (req, res) {
     });
 });
 
-app.post('/orders', function (req, res) {
-    const { user_id, items } = req.body;
-    // items là array [{ product_id, quantity, price }, ...]
-
-    if (!user_id || !items || items.length === 0) {
-        return res.status(400).send({ message: "Thiếu thông tin đơn hàng" });
-    }
-
-    // Tính tổng tiền
-    const total_price = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-    // Insert vào Orders
-    const orderSql = "INSERT INTO Orders (user_id, total_price, created_at) VALUES (?, ?, NOW())";
-    con.query(orderSql, [user_id, total_price], function (err, result) {
-        if (err) throw err;
-
-        const orderId = result.insertId;
-
-        // Chuẩn bị dữ liệu cho OrderItems
-        const orderItems = items.map(item => [orderId, item.product_id, item.quantity, item.price]);
-
-        const orderItemsSql = "INSERT INTO OrderItems (order_id, product_id, quantity, price) VALUES ?";
-        con.query(orderItemsSql, [orderItems], function (err2) {
-            if (err2) throw err2;
-
-            res.send({
-                message: "Tạo đơn hàng thành công",
-                order_id: orderId,
-                total_price: total_price
-            });
-        });
-    });
-});
 
 // Lấy giỏ hàng của user
 app.get('/cart/:user_id', function (req, res) {
@@ -157,6 +124,41 @@ app.post('/cart', function (req, res) {
         res.send({ message: "Thêm vào giỏ hàng thành công", cart_id: result.insertId });
     });
 });
+
+app.post("/orders", (req, res) => {
+  const { user_id, total_amount, total_items, products } = req.body;
+
+  if (!user_id || !total_amount || !total_items || !products || products.length === 0) {
+    return res.status(400).json({ error: "Thiếu dữ liệu đơn hàng" });
+  }
+
+  // 1. Insert vào orders
+  const sqlInsertOrder =
+    "INSERT INTO orders (user_id, total_amount, total_items) VALUES (?, ?, ?)";
+  con.query(sqlInsertOrder, [user_id, total_amount, total_items], (err, result) => {
+    if (err) return res.status(500).json({ error: "Lỗi khi tạo đơn hàng" });
+
+    const orderId = result.insertId;
+
+    // 2. Insert vào order_products
+    const sqlInsertOrderProducts =
+      "INSERT INTO order_products (order_id, product_id, quantity, price) VALUES ?";
+    const values = products.map(p => [orderId, p.product_id, p.quantity, p.price]);
+
+    con.query(sqlInsertOrderProducts, [values], (err2) => {
+      if (err2) return res.status(500).json({ error: "Lỗi khi thêm sản phẩm vào đơn hàng" });
+
+      res.json({
+        message: "Tạo đơn hàng thành công",
+        order_id: orderId,
+        total_amount,
+        total_items
+      });
+    });
+  });
+});
+
+
 
 
 var server = app.listen(5555, function () {
