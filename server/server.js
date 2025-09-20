@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 var express = require('express');
 var bodyParser = require("body-parser");
 var mysql = require('mysql2');
+
 const cors = require('cors');
 var app = express();
 app.use(cors());
