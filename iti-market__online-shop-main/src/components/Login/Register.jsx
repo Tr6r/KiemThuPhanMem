@@ -3,6 +3,9 @@ import { FaUser } from "react-icons/fa";
 import { FaLock } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa6";
 import { FaMobile } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { authSignal } from "../../signals";  // import signal
+
 
 const Register = () => {
 	// State variables to store user input
@@ -13,6 +16,9 @@ const Register = () => {
 	const [CurrentPassVisibility, SetPassVisibility] = useState(false);
 	const [Confirmpassword, setConfirmPassword] = useState("");
 	const [Phone, setPhone] = useState("");
+
+	const navigate = useNavigate(); //hook dieu huong
+
 
 	// Handle user registration
 	const handleRegister = (e) => {
@@ -62,17 +68,28 @@ const Register = () => {
 		if (userExists) {
 			setMessage("Username already exists.");
 		} else {
+
 			// Save new user to local storage
 			users.push({ username, email, password });
 			localStorage.setItem("users", JSON.stringify(users));
 			setMessage("Registration successful!");
+
 			// Reset input fields after successful registration
 			setUsername("");
 			setEmail("");
 			setPassword("");
 			setConfirmPassword("");
 			setPhone("");
+
+	
+
+			//chuyen huong sang login sau 1 giây (cho user thấy message)
+ 			setTimeout(() => {
+				navigate("/login");
+			}, 1000);
 		}
+
+		
 	};
 
 	// Toggle password visibility
