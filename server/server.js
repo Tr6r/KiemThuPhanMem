@@ -10,15 +10,19 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // step 1: rong workbench mở cửa sổ sql và chạy lệnh
 // ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'your_password';
 //step 2:
+
+
 var con = mysql.createConnection({
-    host: "localhost",
-    port: "3306",
-    user: "root",
-    password: "123456",
-    insecureAuth: true,
-    database: "shop"
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    insecureAuth: true
 });
 //step 1
+
+
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected!!!")
@@ -30,6 +34,8 @@ con.connect(function (err) {
 });
 
 //RESTFull API
+// C R U D 
+
 app.get('/getAll', function (req, res) {
     var sql = "SELECT * FROM products";
     con.query(sql, function (err, results) {
@@ -39,14 +45,14 @@ app.get('/getAll', function (req, res) {
 })
 
 app.post('/register', function (req, res) {
-    const { username, password, phone, email } = req.body;
+    const { name, password, phone, email } = req.body;
 
-    if (!username || !password || !phone || !email) {
+    if (!name || !password || !phone || !email) {
         return res.status(400).send({ message: "Thiếu thông tin đăng ký" });
     }
 
-    const sql = "INSERT INTO Users (username, password, phone, email) VALUES (?, ?, ?, ?)";
-    con.query(sql, [username, password, phone, email], function (err, result) {
+    const sql = "INSERT INTO Users (name, password, phone, email) VALUES (?, ?, ?, ?)";
+    con.query(sql, [name, password, phone, email], function (err, result) {
         if (err) {
             if (err.code === "ER_DUP_ENTRY") {
                 return res.status(400).send({ message: "Username hoặc Email đã tồn tại" });
@@ -63,20 +69,17 @@ app.post('/login', function (req, res) {
     if (!username || !password) {
         return res.status(400).send({ message: "Thiếu username hoặc password" });
     }
-
-    const sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+    const sql = "SELECT * FROM Users WHERE name = ? AND password = ?";
     con.query(sql, [username, password], function (err, results) {
         if (err) throw err;
-
         if (results.length === 0) {
             return res.status(401).send({ message: "Sai username hoặc password" });
         }
-
         res.send({ 
             message: "Đăng nhập thành công", 
             user: {
                 id: results[0].id,
-                username: results[0].username,
+                name: results[0].name,
                 phone: results[0].phone,
                 email: results[0].email
             }
