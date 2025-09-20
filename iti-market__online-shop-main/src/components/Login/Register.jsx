@@ -62,16 +62,16 @@ const Register = () => {
 		}
 
 		try {
-		const res = await fetch("http://localhost:5000/register", {
+		const res = await fetch("http://172.16.17.130:5555/register", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				username,
-				password,
-				Phone,
-				email,
+			name: username,   // map username vào name
+			password: password,
+			phone: Phone,     // Phone -> phone
+			email: email
 			}),
 		});
 
