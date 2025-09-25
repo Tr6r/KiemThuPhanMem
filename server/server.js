@@ -159,8 +159,6 @@ app.post("/orders", (req, res) => {
 });
 
 
-
-
 var server = app.listen(5555, function () {
     var host = server.address().address
     var port = server.address().port
